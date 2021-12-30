@@ -11,23 +11,30 @@ mp_drawing = mp.solutions.drawing_utils
 
 #Detect hand
 processed_image = image
-with mp_hands.Hands(
+hand = mp_hands.Hands(
     static_image_mode= True,
     max_num_hands= 2,
-    min_detection_confidence= 0.7,
-) as hand:
-    results = hand.process(image)
+    min_detection_confidence= 0.7)
 
-    if not results.multi_hand_landmarks:
-        print("Failed to detect hand")
-        exit()
-    else:
-        for landmarks in results.multi_hand_landmarks:
-            mp_drawing.draw_landmarks(processed_image, landmarks, mp_hands.HAND_CONNECTIONS)
+results = hand.process(image)
 
+if not results.multi_hand_landmarks:
+    print("Failed to detect hand")
+    exit(0)
+else:
+    for landmarks in results.multi_hand_landmarks:
+        mp_drawing.draw_landmarks(processed_image, landmarks, mp_hands.HAND_CONNECTIONS)
+
+#store coordinates in np arr
+coor = np.zeros((21,3))
+for idx, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
+    coor[idx][0] = landmark.x
+    coor[idx][1] = landmark.y
+    coor[idx][2] = landmark.z
+print(coor)
 
 #End script
-cv2.imshow("hand", processed_image)
+# cv2.imshow("hand", processed_image)
 while True:
     if cv2.waitKey(10) & 0xFF is ord('q'):
         break

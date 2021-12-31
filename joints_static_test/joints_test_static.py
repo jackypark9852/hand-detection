@@ -1,9 +1,8 @@
 import joints
 import mediapipe as mp
-import numpy as np
 import cv2
 
-image = cv2.imread("hand.jpg")
+image = cv2.imread("joints_static_test_hand.jpg")
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 #mp utilities

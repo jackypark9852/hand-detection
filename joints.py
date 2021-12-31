@@ -47,7 +47,7 @@ class joints:
         height, width = image.shape[:2]
         # print(image.shape)
         for idx, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
-            self.coord[idx] = np.multiply([landmark.x, landmark.y, landmark.z], [width, height, 100])
+            self.coord[idx] = np.multiply([landmark.x, landmark.y, landmark.z], [width, height, 500])
         # print(results.multi_hand_landmarks[0].landmark)
         return self.coord
 
@@ -77,13 +77,24 @@ class joints:
 
     def labelAngle(self, image, coord, conn1, conn2):
         angle = self.angleBetween(conn1, conn2)
+
+        x = math.floor(coord[0])
+        y = math.floor(coord[1])
+
+        #text params
+        angle_text = str(math.floor(angle))
         font = cv2.FONT_HERSHEY_DUPLEX
-        org = (math.floor(coord[0]), math.floor(coord[1]))
         fontscale = 0.6
-        color = (255, 0, 0)
-        thickness = 3
-        angle_text = str(round(angle, 2))
-        image = cv2.putText(image, angle_text, org, font, fontscale, thickness)
+        text_color = (0, 0, 0)
+        text_thickness = 1
+
+        #rect params
+        (w, h), _ = cv2.getTextSize(angle_text, cv2.FONT_HERSHEY_DUPLEX, fontscale, text_thickness)
+        rect_color = (255, 255, 255)
+
+        #labelling
+        image = cv2.rectangle(image, (x, y - h), (x +  w, y), rect_color, -1)
+        image = cv2.putText(image, angle_text, (x, y), font, fontscale, text_color, text_thickness)
 
     def drawAngles(self, image, results):
         conn = self.calcConnections(image, results)
@@ -93,4 +104,8 @@ class joints:
             conn1 = self.conn[item[1]]
             conn2 = self.conn[item[2]]
             self.labelAngle(image, landmark, conn1, conn2)
+
+        #TEST
+        # self.labelAngle(image, self.coord[5], self.conn[5], self.conn[6])
+
         return image

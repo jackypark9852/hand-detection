@@ -91,9 +91,11 @@ class joints:
         #rect params
         (w, h), _ = cv2.getTextSize(angle_text, cv2.FONT_HERSHEY_DUPLEX, fontscale, text_thickness)
         rect_color = (255, 255, 255)
+        rect_border_color = (0, 0, 0)
 
         #labelling
         image = cv2.rectangle(image, (x, y - h), (x +  w, y), rect_color, -1)
+        image = cv2.rectangle(image, (x, y - h), (x +  w, y), rect_border_color, 1)
         image = cv2.putText(image, angle_text, (x, y), font, fontscale, text_color, text_thickness)
 
     def drawAngles(self, image, results):

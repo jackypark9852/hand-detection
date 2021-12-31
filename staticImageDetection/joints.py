@@ -10,13 +10,13 @@ class joints:
         self.COORD_DIM = 3
 
         #Store connection instructions
-        self.CONN = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM), dtype = np.int32)
-        for idx, conn in enumerate(self.CONN):
+        self.CONNNECTIONS_HAND = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM), dtype = np.int32)
+        for idx, conn in enumerate(self.CONNNECTIONS_HAND):
             conn = [idx, idx, idx - 1]
-        self.CONN[5] = [5, 5, 0]
-        self.CONN[9] = [9, 9, 0]
-        self.CONN[13] = [13, 13, 0]
-        self.CONN[17] = [17, 17, 0]
+        self.CONNNECTIONS_HAND[5] = [5, 5, 0]
+        self.CONNNECTIONS_HAND[9] = [9, 9, 0]
+        self.CONNNECTIONS_HAND[13] = [13, 13, 0]
+        self.CONNNECTIONS_HAND[17] = [17, 17, 0]
 
         #store angles to annotate
         #[landmark label, conn1, conn2]
@@ -59,7 +59,7 @@ class joints:
                 continue
             self.conn[idx] = coords[idx] - coords[idx - 1]
 
-        for connect in self.CONN:
+        for connect in self.CONNNECTIONS_HAND:
             idx = connect[0]
             conn_to = connect[1]
             conn_from = connect[2]
@@ -77,12 +77,12 @@ class joints:
 
     def labelAngle(self, image, coord, conn1, conn2):
         angle = self.angleBetween(conn1, conn2)
-        font = cv2.FONT_HERSHEY_COMPLEX
+        font = cv2.FONT_HERSHEY_DUPLEX
         org = (math.floor(coord[0]), math.floor(coord[1]))
-        fontscale = 1
+        fontscale = 0.6
         color = (255, 0, 0)
-        thickness = 1
-        angle_text = '{0:.3g}'.format(angle)
+        thickness = 3
+        angle_text = str(round(angle, 2))
         image = cv2.putText(image, angle_text, org, font, fontscale, thickness)
 
     def drawAngles(self, image, results):

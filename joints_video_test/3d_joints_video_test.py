@@ -69,12 +69,15 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
             y = joints_hand.coord[:,1]
             z = joints_hand.coord[:,2]
             ax.scatter(x, 1- y, z)  # plot the point (2,3,4) on the figure
+            for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
+                arr = np.array([joints_hand.coord[a], joints_hand.coord[b]]).T
+                ax.plot(arr[0], 1 - arr[1], arr[2], color = 'black')
 
         #display image
         cv2.imshow('frame', image)
 
         #display 3d scatter plot
-        ax.set_zlim3d(-0.1, 0.1)  # viewrange for z-axis should be [-4,4]
+        ax.set_zlim3d(-0.25, 0.25)  # viewrange for z-axis should be [-4,4]
         ax.set_ylim3d(0, 1)  # viewrange for y-axis should be [-2,2]
         ax.set_xlim3d(0, 1)  # viewrange for x-axis should be [-2,2]
         ax.set_xlabel('x-axis')

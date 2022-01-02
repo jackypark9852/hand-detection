@@ -56,7 +56,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         # Detection is successful
         if results.multi_hand_landmarks:
             # Label landmarks and connections
-            for num, hand in enumerate(results.multi_hand_landmarks):
+            for hand in results.multi_hand_landmarks:
                 # print(hand)
                 mp_drawing.draw_landmarks(image,
                                           hand,

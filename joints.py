@@ -53,9 +53,9 @@ class joints:
         #     self.conn[idx] = coords[conn_to] - coords[conn_from]
         return self.conn
 
-    def angleBetween(self, conn1, conn2):
-        unit_conn1  = conn1/np.linalg.norm(conn1)
-        unit_conn2  = conn2/np.linalg.norm(conn2)
+    def angle_between(self, conn1, conn2):
+        unit_conn1 = conn1/np.linalg.norm(conn1)
+        unit_conn2 = conn2/np.linalg.norm(conn2)
         # unit_conn1 = conn1 / np.linalg.norm(conn1[:2])
         # unit_conn2 = conn2 / np.linalg.norm(conn2[:2])
         # print(unit_conn1, unit_conn2)
@@ -64,8 +64,8 @@ class joints:
         deg_angle = rad_angle * 180/np.pi
         return deg_angle
 
-    def labelAngle(self, image, coord, conn1, conn2):
-        angle = self.angleBetween(conn1, conn2)
+    def label_angle(self, image, coord, conn1, conn2):
+        angle = self.angle_between(conn1, conn2)
         # print(angle)
         image_width, image_height = image.shape[:2]
         x = math.floor(coord[0] * image_height)
@@ -95,10 +95,10 @@ class joints:
                 landmark = self.coord[idx]
                 conn1 = self.conn[a]
                 conn2 = self.conn[b]
-                self.labelAngle(image, landmark, conn1, conn2)
+                self.label_angle(image, landmark, conn1, conn2)
 
         #TEST
-        # self.labelAngle(image, self.coord[5], self.conn[5], self.conn[6])
+        # self.label_angle(image, self.coord[5], self.conn[5], self.conn[6])
 
         return image
 

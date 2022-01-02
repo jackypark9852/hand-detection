@@ -13,6 +13,10 @@ cap = cv2.VideoCapture(0)
 if cap.isOpened():
     image_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     image_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    cv2.namedWindow('frame')
+else:
+    print('FAILED TO OPEN CAMERA')
+    exit(1)
 
 # Joints initialization
 joints_hand = joints.joints()
@@ -21,6 +25,7 @@ joints_hand = joints.joints()
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 plt.ion()
+plt.show()
 
 # Mediapipe drawing setup
 circle_spec = mp_drawing.DrawingSpec(color=(0, 47, 255), thickness=5, circle_radius=8)
@@ -47,7 +52,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         # image.flags.writeable = True
 
         # RGB to BGR
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         # Detections
         # print(results)
@@ -58,27 +63,27 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
             # Label landmarks and connections
             for hand in results.multi_hand_landmarks:
                 # print(hand)
-                mp_drawing.draw_landmarks(image,
+                mp_drawing.draw_landmarks(frame,
                                           hand,
                                           mp_hands.HAND_CONNECTIONS,
                                           mp_drawing_styles.get_default_hand_landmarks_style(),
                                           mp_drawing_styles.get_default_hand_connections_style())
             # label angles
-            image = joints_hand.draw_angles(image, results)
+            frame = joints_hand.draw_angles(frame, results)
 
             # calc 3d results
             plt.cla()
 
-            # x = joints_hand.coord[:,0]
-            # y = joints_hand.coord[:,1]
-            # z = joints_hand.coord[:,2]
-            # ax.scatter(x, 1- y, z)  # plot the point (2,3,4) on the figure
+            x = joints_hand.coord[:,0]
+            y = joints_hand.coord[:,1]
+            z = joints_hand.coord[:,2]
+            ax.scatter(x, 1- y, z)  # plot the point (2,3,4) on the figure
             for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
                 arr = np.array([joints_hand.coord[a], joints_hand.coord[b]]).T
                 ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='black')
 
         # display image
-        cv2.imshow('frame', image)
+        cv2.imshow('frame', frame)
 
         # display 3d scatter plot
         ax.set_zlim3d(-0.25, 0.25)  # viewrange for z-axis should be [-4,4]
@@ -87,8 +92,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         ax.set_xlabel('x-axis')
         ax.set_ylabel('y-axis')
         ax.set_zlabel('z-axis')
-        plt.show()
-        plt.pause(0.00001)  # Note this correction
+        plt.pause(0.01)  # Note this correction
 
         # Performance tracker end
         e2 = cv2.getTickCount()
@@ -97,6 +101,6 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
 
         # termination
         if (cv2.waitKey(10) & 0xFF) == ord('q'):
-                break
+            break
 cap.release()
 cv2.destroyAllWindows()

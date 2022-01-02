@@ -11,7 +11,7 @@ class joints:
 
         #Store connection instructions
         self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        self.CONNECTIONS_CHILD = [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
+        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
 
 
         #store angles to annotate
@@ -27,7 +27,7 @@ class joints:
         self.conn = np.zeros((self.LANDMARK_COUNT, 3))
         self.angles = np.zeros((self.LANDMARK_COUNT, 3))
 
-    def calcCoordinates(self, image, results):
+    def calc_coordinates(self, image, results):
         height, width = image.shape[:2]
         # print(image.shape)
         for idx, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
@@ -35,12 +35,12 @@ class joints:
         # print(results.multi_hand_landmarks[0].landmark)
         return self.coord
 
-    def calcConnections(self, image, results):
-        coords = self.calcCoordinates(image, results)
-        print(coords)
+    def calc_connections(self, image, results):
+        coords = self.calc_coordinates(image, results)
+        # print(coords)
         for idx, (a, b) in enumerate(zip(self.CONNECTIONS_PARENT, self.CONNECTIONS_CHILD)):
             self.conn[idx] = coords[a] - coords[b]
-        print('conns:', self.conn)
+        # print('conns:', self.conn)
         # for idx,landmarks in enumerate(self.coord):
         #     if idx == 0:
         #         continue
@@ -58,7 +58,7 @@ class joints:
         unit_conn2  = conn2/np.linalg.norm(conn2)
         # unit_conn1 = conn1 / np.linalg.norm(conn1[:2])
         # unit_conn2 = conn2 / np.linalg.norm(conn2[:2])
-        print(unit_conn1, unit_conn2)
+        # print(unit_conn1, unit_conn2)
         dot_product = np.dot(unit_conn1, unit_conn2)
         rad_angle = np.arccos(dot_product)
         deg_angle = rad_angle * 180/np.pi
@@ -66,7 +66,7 @@ class joints:
 
     def labelAngle(self, image, coord, conn1, conn2):
         angle = self.angleBetween(conn1, conn2)
-        print(angle)
+        # print(angle)
         image_width, image_height = image.shape[:2]
         x = math.floor(coord[0] * image_height)
         y = math.floor(coord[1] * image_width)
@@ -88,8 +88,8 @@ class joints:
         image = cv2.rectangle(image, (x, y - h), (x +  w, y), rect_border_color, 1)
         image = cv2.putText(image, angle_text, (x, y), font, fontscale, text_color, text_thickness)
 
-    def drawAngles(self, image, results):
-        conn = self.calcConnections(image, results)
+    def draw_angles(self, image, results):
+        conn = self.calc_connections(image, results)
         for show, idx, a, b in zip(self.ANGLES_SHOW, self.ANGLES_AT, self.ANGLES_PARENT, self.ANGLES_CHILD):
             if show == 1:
                 landmark = self.coord[idx]
@@ -102,5 +102,6 @@ class joints:
 
         return image
 
-    def getCoordinates(self):
+    def get_coords(self):
         return self.coord
+

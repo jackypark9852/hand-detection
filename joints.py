@@ -10,16 +10,16 @@ class joints:
         self.COORD_DIM = 3
 
         # Store connection instructions
-        self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
+        self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 17]
+        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19, 13]
 
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW   = [0, 0, 0, 1, 1, 1, 0,  0,  0,  0,  0,  0,  0,  0,  0]
-        self.ANGLES_AT     = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
-        self.ANGLES_PARENT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
-        self.ANGLES_CHILD  = [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18]
+        self.ANGLES_SHOW   = [0, 0, 0, 1, 1, 1, 0,  0,  0,  0,  0,  0,  0,  0,  0, 1]
+        self.ANGLES_AT     = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 17]
+        self.ANGLES_PARENT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 20]
+        self.ANGLES_CHILD  = [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, 17]
 
         # Coordinates, connections, and angels between connections
         self.landmarks = np.zeros((self.LANDMARK_COUNT, 3))
@@ -53,8 +53,9 @@ class joints:
         return deg_angle
 
     def _label_angle(self, coord, conn1, conn2):
+        MAX_ANGLE = 180
         angle = self._angle_between(conn1, conn2)
-
+        angle = min(MAX_ANGLE, angle)
         image_width, image_height = self.image.shape[:2]
         x = math.floor(coord[0] * image_height)
         y = math.floor(coord[1] * image_width)

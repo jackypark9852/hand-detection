@@ -17,7 +17,8 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         frame = cv2.flip(frame, 1)
 
         # BGR to RGB
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)?
+        image = cv2.imread("static_image_detection_hand.jpg")
 
         # set flag
         image.flags.writeable = False

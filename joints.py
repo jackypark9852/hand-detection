@@ -61,10 +61,10 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
-        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
-        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
+        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
+        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
+        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, -1, -2, -3, -4]
 
         # Coordinates, connections, and angels between connections
         self.landmarks = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
@@ -149,9 +149,16 @@ class joints:
         for show, idx, a, b in zip(self.ANGLES_SHOW_FLAG, self.ANGLES_SHOW_AT, self.ANGLES_CONN1, self.ANGLES_CONN2):
             if show == 1:
                 landmark = self.coord[idx]
-                conn1 = self.conn[a]
-                conn2 = self.conn[b]
-                print(conn1, conn2)
+                if (a < 0):
+                    conn1 = self.normal[abs(a)]
+                else:
+                    conn1 = self.conn[a]
+
+                if (b < 0):
+                    conn2 = self.normal[b]
+                else:
+                    conn2 = self.conn[b]
+                # print(conn1, conn2)
                 self._label_angle(landmark, conn1, conn2)
 
         return image

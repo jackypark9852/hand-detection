@@ -27,6 +27,7 @@ class ConnLabel(IntEnum):
     RING_FINGER_PPB = auto()
     RING_FINGER_DPB = auto()
     PINKY_FINGER_CB = auto()
+    PINKY_FINGER_MCB = auto()
     PINKY_FINGER_PPB = auto()
     PINKY_FINGER_DPB = auto()
 
@@ -48,6 +49,7 @@ class joints:
         # Constants
         self.LANDMARK_COUNT = 21
         self.CONNECTION_COUNT = 21
+        self.NORMAL_COUNT = 5
         self.COORD_DIM = 3
         self.PLACE_HOLDER = 0
 
@@ -71,7 +73,13 @@ class joints:
         self.angle = np.zeros((self.LANDMARK_COUNT, 3))
         self.normal = np.zeros(self.NORMAL_COUNT, 3)
 
-        # Image
+        # Connections used to cross product with palm normal to calculate normal plane for MCP joints
+        self.MCP_NORMAL_OPERAND_CONN = [ConnLabel.INDEX_FINGER_CB,
+                                        ConnLabel.MIDDLE_FINGER_CB,
+                                        ConnLabel.RING_FINGER_CB,
+                                        ConnLabel.PINKY_FINGER_CB]
+
+        # Store image
         self.image = np.zeros((480, 480, 3), np.uint8)
 
     def _calc_coordinates(self, results):
@@ -81,13 +89,19 @@ class joints:
 
     def _calc_connections(self, results):
         coords = self._calc_coordinates(results)
+        normal = self.normal
+        conn = self.conn
         for idx, (a, b) in enumerate(zip(self.CONNECTIONS_PARENT, self.CONNECTIONS_CHILD)):
-            self.conn[idx] = coords[a] - coords[b]
+            conn[idx] = coords[a] - coords[b]
 
-        self.palm_normal = np.cross(
-            self.conn[ConnLabel.PINKY_FINGER_CB], self.conn[ConnLabel.INDEX_FINGER_CB])
+        # Calculate palm normal
+        normal[NormalLabel.PALM_NORMAL] = np.cross(
+            conn[ConnLabel.PINKY_FINGER_CB], conn[ConnLabel.INDEX_FINGER_CB])
 
-        return self.conn
+        for idx, idx_conn in enumerate(self.MCP_NORMAL_OPERAND_CONN):
+            # Palm normal is in 0, so rest starts at 1
+            normal[idx + 1] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
+        return conn
 
     def _angle_between(self, conn1, conn2):
         unit_conn1 = conn1 / np.linalg.norm(conn1)

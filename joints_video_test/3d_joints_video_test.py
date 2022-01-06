@@ -40,7 +40,7 @@ connection_spec = mp_drawing.DrawingSpec(color=(0, 217, 255), thickness=5, circl
 prev_frame_time = 0
 new_frame_time = 0
 
-with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) as hands:
+with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands= 1) as hands:
     while cap.isOpened():
         ret, frame = cap.read()
         frame = cv2.flip(frame, 1)

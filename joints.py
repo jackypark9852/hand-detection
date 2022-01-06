@@ -4,10 +4,12 @@ import cv2
 import math
 from enum import IntEnum, auto
 
+
 class ConnLabel(IntEnum):
     def _generate_next_value_(self, _start, count, _last_values):
         """Generate consecutive automatic numbers starting from zero."""
         return count
+
     THUMB_CB = auto()
     THUMB_MCB = auto()
     THUMB_PPB = auto()
@@ -27,7 +29,19 @@ class ConnLabel(IntEnum):
     PINKY_FINGER_CB = auto()
     PINKY_FINGER_PPB = auto()
     PINKY_FINGER_DPB = auto()
+
+
+class NormalLabel(IntEnum):
+    def _generate_next_value_(self, _start, count, _last_values):
+        """Generate consecutive automatic numbers starting from zero."""
+        return count
+
     PALM_NORMAL = auto()
+    INDEX_FINGER_MCP_NORMAL = auto()
+    MIDDLE_FINGER_MCP_NORMAL = auto()
+    RING_FINGER_MCP_NORMAL = auto()
+    PINKY_FINGER_MCP_NORMAL = auto()
+
 
 class joints:
     def __init__(self):
@@ -41,21 +55,21 @@ class joints:
         # 1) Basic joint angles
         # 2)
         self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
+        self.CONNECTIONS_CHILD = [0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19]
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0]
-        self.ANGLES_SHOW_AT   = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5]
-        self.ANGLES_CONN1     = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, ConnLabel.PALM_NORMAL]
-        self.ANGLES_CONN2     = [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, 5]
+        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5]
+        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, ConnLabel.PALM_NORMAL]
+        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 5]
 
         # Coordinates, connections, and angels between connections
         self.landmarks = np.zeros((self.LANDMARK_COUNT, 3))
         self.coord = np.zeros((self.LANDMARK_COUNT, 3))
         self.conn = np.zeros((self.CONNECTION_COUNT, 3))
-        self.angles = np.zeros((self.LANDMARK_COUNT, 3))
-        self.palm_normal = np.zeros(3)
+        self.angle = np.zeros((self.LANDMARK_COUNT, 3))
+        self.normal = np.zeros(self.NORMAL_COUNT, 3)
 
         # Image
         self.image = np.zeros((480, 480, 3), np.uint8)
@@ -72,15 +86,16 @@ class joints:
 
         self.palm_normal = np.cross(
             self.conn[ConnLabel.PINKY_FINGER_CB], self.conn[ConnLabel.INDEX_FINGER_CB])
+
         return self.conn
 
     def _angle_between(self, conn1, conn2):
-        unit_conn1 = conn1/np.linalg.norm(conn1)
-        unit_conn2 = conn2/np.linalg.norm(conn2)
+        unit_conn1 = conn1 / np.linalg.norm(conn1)
+        unit_conn2 = conn2 / np.linalg.norm(conn2)
         dot_product = np.dot(unit_conn1, unit_conn2)
 
         rad_angle = np.arccos(dot_product)
-        deg_angle = rad_angle * 180/np.pi
+        deg_angle = rad_angle * 180 / np.pi
 
         return deg_angle
 
@@ -127,4 +142,3 @@ class joints:
 
     def get_coords(self):
         return self.coord
-

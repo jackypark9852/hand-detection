@@ -11,7 +11,8 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 # Image capture settings
 cap = cv2.VideoCapture(0)
-    # print('CAMERA OPENED')
+
+# print('CAMERA OPENED')
 if cap.isOpened():
     image_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     image_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -40,7 +41,13 @@ connection_spec = mp_drawing.DrawingSpec(color=(0, 217, 255), thickness=5, circl
 prev_frame_time = 0
 new_frame_time = 0
 
-with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands= 1) as hands:
+
+# def drawVector(ax, start, end, width, color):
+#     vector = np.array([start, end]).T
+#     ax.plot(vector[0], 1 - vector[1], vector[2], linewidth=width, color=color)
+
+
+with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands=1) as hands:
     while cap.isOpened():
         ret, frame = cap.read()
         frame = cv2.flip(frame, 1)
@@ -90,22 +97,25 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             # plot 3d results
             plt.cla()
 
-            x = joints_hand.coord[:,0]
-            y = joints_hand.coord[:,1]
-            z = joints_hand.coord[:,2]
+            x = joints_hand.coord[:, 0]
+            y = joints_hand.coord[:, 1]
+            z = joints_hand.coord[:, 2]
             ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figure
             for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
                 arr = np.array([joints_hand.coord[a], joints_hand.coord[b]]).T
                 ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='black')
-            arr = np.array([joints_hand.coord[5] + joints_hand.palm_normal*3, joints_hand.coord[5]]).T
-            ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='red')
+                # drawVector(ax, joints_hand.coord[a], joints_hand.coord[b], 'black')
+
+            # arr = np.array([joints_hand.coord[5] + joints_hand.normal[joints.NormalLabel.PALM_NORMAL] * 3,
+            #                 joints_hand.coord[5]]).T
+            # ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='red')
 
         # display image
         cv2.imshow('frame', frame)
 
-
         # termination
         if (cv2.waitKey(10) & 0xFF) == ord('q'):
             break
+
 cap.release()
 cv2.destroyAllWindows()

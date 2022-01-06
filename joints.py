@@ -61,17 +61,17 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5]
-        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, ConnLabel.PALM_NORMAL]
-        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 5]
+        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
+        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19]
+        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
 
         # Coordinates, connections, and angels between connections
-        self.landmarks = np.zeros((self.LANDMARK_COUNT, 3))
-        self.coord = np.zeros((self.LANDMARK_COUNT, 3))
-        self.conn = np.zeros((self.CONNECTION_COUNT, 3))
-        self.angle = np.zeros((self.LANDMARK_COUNT, 3))
-        self.normal = np.zeros(self.NORMAL_COUNT, 3)
+        self.landmarks = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
+        self.coord = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
+        self.conn = np.zeros((self.CONNECTION_COUNT, self.COORD_DIM))
+        self.angle = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
+        self.normal = np.zeros((self.NORMAL_COUNT, self.COORD_DIM))
 
         # Connections used to cross product with palm normal to calculate normal plane for MCP joints
         self.MCP_NORMAL_OPERAND_CONN = [ConnLabel.INDEX_FINGER_CB,

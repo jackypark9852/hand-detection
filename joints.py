@@ -25,7 +25,6 @@ class ConnLabel(IntEnum):
     RING_FINGER_PPB = auto()
     RING_FINGER_DPB = auto()
     PINKY_FINGER_CB = auto()
-    PINKY_FINGER_MCB = auto()
     PINKY_FINGER_PPB = auto()
     PINKY_FINGER_DPB = auto()
     PALM_NORMAL = auto()
@@ -39,13 +38,14 @@ class joints:
         self.PLACE_HOLDER = 0
 
         # Store connection instructions
-        # last for palm_normal
-        self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, self.PLACE_HOLDER]
-        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19, self.PLACE_HOLDER]
+        # 1) Basic joint angles
+        # 2)
+        self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 1]
+        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0]
         self.ANGLES_SHOW_AT   = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5]
         self.ANGLES_CONN1     = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, ConnLabel.PALM_NORMAL]
         self.ANGLES_CONN2     = [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, 5]
@@ -55,7 +55,7 @@ class joints:
         self.coord = np.zeros((self.LANDMARK_COUNT, 3))
         self.conn = np.zeros((self.CONNECTION_COUNT, 3))
         self.angles = np.zeros((self.LANDMARK_COUNT, 3))
-
+        self.palm_normal = np.zeros(3)
 
         # Image
         self.image = np.zeros((480, 480, 3), np.uint8)
@@ -70,9 +70,8 @@ class joints:
         for idx, (a, b) in enumerate(zip(self.CONNECTIONS_PARENT, self.CONNECTIONS_CHILD)):
             self.conn[idx] = coords[a] - coords[b]
 
-        self.conn[ConnLabel.PALM_NORMAL] = np.cross(
+        self.palm_normal = np.cross(
             self.conn[ConnLabel.PINKY_FINGER_CB], self.conn[ConnLabel.INDEX_FINGER_CB])
-        print(self.conn[ConnLabel.PALM_NORMAL])
         return self.conn
 
     def _angle_between(self, conn1, conn2):

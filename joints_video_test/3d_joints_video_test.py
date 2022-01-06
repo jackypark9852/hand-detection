@@ -49,9 +49,17 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         height = int(frame.shape[0] * scale_percent / 100)
         dim = (width, height)
 
-        #
         # Resize image
         frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+
+        # 3d display parameters
+        ax.set_zlim3d(-0.25, 0.25)  # viewrange for z-axis should be [-4,4]
+        ax.set_ylim3d(0, 1)  # viewrange for y-axis should be [-2,2]
+        ax.set_xlim3d(0, 1)  # viewrange for x-axis should be [-2,2]
+        ax.set_xlabel('x-axis')
+        ax.set_ylabel('y-axis')
+        ax.set_zlabel('z-axis')
+        plt.pause(0.000001)
 
         # Fps tracker start
         new_frame_time = time.time()
@@ -60,25 +68,11 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
         prev_frame_time = new_frame_time
         cv2.putText(frame, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
 
-
         # BGR to RGB
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # set flag
-        # image.flags.writeable = False
-
         # Detections
         results = hands.process(image)
-
-        # set flag to true
-        # image.flags.writeable = True
-
-        # RGB to BGR
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-        # Detections
-        # print(results)
-
 
         # Detection is successful
         if results.multi_hand_landmarks:
@@ -93,30 +87,22 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5) a
             # label angles
             frame = joints_hand.draw_angles(frame, results)
 
-            # calc 3d results
+            # plot 3d results
             plt.cla()
 
             x = joints_hand.coord[:,0]
             y = joints_hand.coord[:,1]
             z = joints_hand.coord[:,2]
-            ax.scatter(x, 1- y, z)  # plot the point (2,3,4) on the figure
+            ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figure
             for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
                 arr = np.array([joints_hand.coord[a], joints_hand.coord[b]]).T
                 ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='black')
-            arr = np.array([joints_hand.coord[5] + joints_hand.conn[20]*3, joints_hand.coord[5]]).T
+            arr = np.array([joints_hand.coord[5] + joints_hand.palm_normal*3, joints_hand.coord[5]]).T
             ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='red')
 
         # display image
         cv2.imshow('frame', frame)
 
-        # display 3d scatter plot
-        ax.set_zlim3d(-0.25, 0.25)  # viewrange for z-axis should be [-4,4]
-        ax.set_ylim3d(0, 1)  # viewrange for y-axis should be [-2,2]
-        ax.set_xlim3d(0, 1)  # viewrange for x-axis should be [-2,2]
-        ax.set_xlabel('x-axis')
-        ax.set_ylabel('y-axis')
-        ax.set_zlabel('z-axis')
-        plt.pause(0.000001)  # Note this correction
 
         # termination
         if (cv2.waitKey(10) & 0xFF) == ord('q'):

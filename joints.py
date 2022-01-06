@@ -57,7 +57,7 @@ class joints:
         # 1) Basic joint angles
         # 2)
         self.CONNECTIONS_PARENT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        self.CONNECTIONS_CHILD = [0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19]
+        self.CONNECTIONS_CHILD =  [0, 1, 2, 3, 0, 5, 6, 7, 0,  9, 10, 11,  0, 13, 14, 15,  0, 17, 18, 19]
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
@@ -72,6 +72,7 @@ class joints:
         self.conn = np.zeros((self.CONNECTION_COUNT, self.COORD_DIM))
         self.angle = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
         self.normal = np.zeros((self.NORMAL_COUNT, self.COORD_DIM))
+        self.NORMAL_AT = [0, 5, 9, 13, 17]
 
         # Connections used to cross product with palm normal to calculate normal plane for MCP joints
         self.MCP_NORMAL_OPERAND_CONN = [ConnLabel.INDEX_FINGER_CB,
@@ -101,6 +102,7 @@ class joints:
         for idx, idx_conn in enumerate(self.MCP_NORMAL_OPERAND_CONN):
             # Palm normal is in 0, so rest starts at 1
             normal[idx + 1] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
+        print(normal)
         return conn
 
     def _angle_between(self, conn1, conn2):

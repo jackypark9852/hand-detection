@@ -27,7 +27,7 @@ else:
 # Joints initialization
 joints_hand = joints.joints()
 
-# 3d figure setup
+# 3d figure initialization
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111, projection='3d')
 plt.ion()
@@ -42,31 +42,38 @@ prev_frame_time = 0
 new_frame_time = 0
 
 
-# def drawVector(ax, start, end, width, color):
-#     vector = np.array([start, end]).T
-#     ax.plot(vector[0], 1 - vector[1], vector[2], linewidth=width, color=color)
+def drawScatter(ax, coord):
+    x = coord[:, 0]
+    y = coord[:, 1]
+    z = coord[:, 2]
+    ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figure
+
+
+def drawVector(ax, start, end, width, color):
+    vector = np.array([start, end]).T
+    ax.plot(vector[0], 1 - vector[1], vector[2], linewidth=width, color=color, scalex= False, scaley=False)
+
+
+def setUp3dDisplay(ax, xmin, xmax, ymin, ymax, zmin, zmax):
+    ax.set_zlim3d(zmin, zmax)  # viewrange for z-axis should be [-4,4]
+    ax.set_ylim3d(ymin, ymax)  # viewrange for y-axis should be [-2,2]
+    ax.set_xlim3d(xmin, xmax)  # viewrange for x-axis should be [-2,2]
+    ax.set_xlabel('x-axis')
+    ax.set_ylabel('y-axis')
+    ax.set_zlabel('z-axis')
 
 
 with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands=1) as hands:
     while cap.isOpened():
         ret, frame = cap.read()
         frame = cv2.flip(frame, 1)
+
+        # Resize image
         scale_percent = 200  # percent of original size
         width = int(frame.shape[1] * scale_percent / 100)
         height = int(frame.shape[0] * scale_percent / 100)
         dim = (width, height)
-
-        # Resize image
         frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
-
-        # 3d display parameters
-        ax.set_zlim3d(-0.25, 0.25)  # viewrange for z-axis should be [-4,4]
-        ax.set_ylim3d(0, 1)  # viewrange for y-axis should be [-2,2]
-        ax.set_xlim3d(0, 1)  # viewrange for x-axis should be [-2,2]
-        ax.set_xlabel('x-axis')
-        ax.set_ylabel('y-axis')
-        ax.set_zlabel('z-axis')
-        plt.pause(0.000001)
 
         # Fps tracker start
         new_frame_time = time.time()
@@ -84,38 +91,40 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         # Detection is successful
         if results.multi_hand_landmarks:
             # Label landmarks and connections
+            landmarks_style = mp_drawing_styles.get_default_hand_landmarks_style()
+            connections_style = mp_drawing_styles.get_default_hand_connections_style()
             for hand in results.multi_hand_landmarks:
-                # print(hand)
-                mp_drawing.draw_landmarks(frame,
-                                          hand,
-                                          mp_hands.HAND_CONNECTIONS,
-                                          mp_drawing_styles.get_default_hand_landmarks_style(),
-                                          mp_drawing_styles.get_default_hand_connections_style())
+                mp_drawing.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS, landmarks_style, connections_style)
+
             # label angles
             frame = joints_hand.draw_angles(frame, results)
 
-            # plot 3d results
+            # Clear 3d disply
             plt.cla()
 
-            x = joints_hand.coord[:, 0]
-            y = joints_hand.coord[:, 1]
-            z = joints_hand.coord[:, 2]
-            ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figure
+            # 3d display parameters
+            setUp3dDisplay(ax, 0, 1, 0, 1, -0.25, 0.25)
+
+            # Draw landmarks
+            drawScatter(ax, joints_hand.coord)
+
+            # Draw connections
             for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
-                arr = np.array([joints_hand.coord[a], joints_hand.coord[b]]).T
-                ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='black')
-                # drawVector(ax, joints_hand.coord[a], joints_hand.coord[b], 'black')
+                drawVector(ax, joints_hand.coord[a], joints_hand.coord[b], 3, 'black')
 
-            # arr = np.array([joints_hand.coord[5] + joints_hand.normal[joints.NormalLabel.PALM_NORMAL] * 3,
-            #                 joints_hand.coord[5]]).T
-            # ax.plot(arr[0], 1 - arr[1], arr[2], linewidth=3, color='red')
+            # Draw normal vectors
+            norm_at = joints_hand.NORMAL_AT
+            for idx, normal in enumerate(joints_hand.normal):
+                drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
-        # display image
+        # Display annotated image
         cv2.imshow('frame', frame)
 
-        # termination
+        # Termination
         if (cv2.waitKey(10) & 0xFF) == ord('q'):
             break
 
+        # For 3d display to refresh
+        plt.pause(0.000001)
 cap.release()
 cv2.destroyAllWindows()

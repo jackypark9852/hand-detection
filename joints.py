@@ -61,16 +61,17 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
         self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
         self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
         self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, -1, -2, -3, -4]
+        self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
 
         # Coordinates, connections, and angels between connections
         self.landmarks = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
         self.coord = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
         self.conn = np.zeros((self.CONNECTION_COUNT, self.COORD_DIM))
-        self.angle = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
+        self.angle = np.zeros((self.ANGLE_COUNT))
         self.normal = np.zeros((self.NORMAL_COUNT, self.COORD_DIM))
         self.NORMAL_AT = [0, 5, 9, 13, 17]
 
@@ -115,51 +116,55 @@ class joints:
 
         return deg_angle
 
-    def _label_angle(self, coord, conn1, conn2):
+    def _calc_angles(self):
+        for idx, (a, b) in enumerate(zip(self.ANGLES_CONN1, self.ANGLES_CONN2)):
+            conn1 = self.normal[abs(a)] if (a < 0) else self.conn[a]
+            conn2 = self.normal[abs(b)] if (b < 0) else self.conn[b]
+            self.angle[idx] = self._angle_between(conn1, conn2)
+        return self.angle
+
+    #NEED TO FIX
+    def _label_angles(self):
+        # Maximum angle
         MAX_ANGLE = 180
-        angle = self._angle_between(conn1, conn2)
-        angle = min(MAX_ANGLE, angle)
-        image_width, image_height = self.image.shape[:2]
-        x = math.floor(coord[0] * image_height)
-        y = math.floor(coord[1] * image_width)
 
         # Text params
-        angle_text = str(math.floor(angle))
         font = cv2.FONT_HERSHEY_DUPLEX
         font_scale = 0.7
         text_color = (0, 0, 0)
         text_thickness = 1
 
         # Rect params
-        (w, h), _ = cv2.getTextSize(angle_text, cv2.FONT_HERSHEY_DUPLEX, font_scale, text_thickness)
+        image_width, image_height = self.image.shape[:2]
         rect_color = (255, 255, 255)
         rect_border_color = (0, 0, 0)
 
         # Labelling
-        image = cv2.rectangle(self.image, (x, y - h), (x + w, y), rect_color, -1)
-        image = cv2.rectangle(self.image, (x, y - h), (x + w, y), rect_border_color, 1)
-        image = cv2.putText(self.image, angle_text, (x, y), font, font_scale, text_color, text_thickness)
+        for flag, loc_idx, angle in zip(self.ANGLES_SHOW_FLAG, self.ANGLES_SHOW_AT, self.angle):
+            # Check if angle show flag set to 1 (True)
+            if flag == 0:
+                continue
+
+            angle = min(MAX_ANGLE, angle)
+            angle_text = str(math.floor(angle))
+            (w, h), _ = cv2.getTextSize(angle_text, cv2.FONT_HERSHEY_DUPLEX, font_scale, text_thickness)
+
+            loc = self.coord[loc_idx]
+            x = math.floor(loc[0] * image_height)
+            y = math.floor(loc[1] * image_width)
+
+            image = cv2.rectangle(self.image, (x, y - h), (x + w, y), rect_color, -1)
+            image = cv2.rectangle(self.image, (x, y - h), (x + w, y), rect_border_color, 1)
+            image = cv2.putText(self.image, angle_text, (x, y), font, font_scale, text_color, text_thickness)
 
         return self.image
 
     def draw_angles(self, image, results):
         self.image = image
 
-        conn = self._calc_connections(results)
-        for show, idx, a, b in zip(self.ANGLES_SHOW_FLAG, self.ANGLES_SHOW_AT, self.ANGLES_CONN1, self.ANGLES_CONN2):
-            if show == 1:
-                landmark = self.coord[idx]
-                if (a < 0):
-                    conn1 = self.normal[abs(a)]
-                else:
-                    conn1 = self.conn[a]
-
-                if (b < 0):
-                    conn2 = self.normal[b]
-                else:
-                    conn2 = self.conn[b]
-                # print(conn1, conn2)
-                self._label_angle(landmark, conn1, conn2)
+        self._calc_connections(results)
+        self._calc_angles()
+        self._label_angles()
 
         return image
 

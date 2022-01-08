@@ -9,7 +9,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 mp_drawing_styles = mp.solutions.drawing_styles
 
-# Image capture settings
+# Open camera
 cap = cv2.VideoCapture(0)
 
 # print('CAMERA OPENED')
@@ -41,6 +41,8 @@ connection_spec = mp_drawing.DrawingSpec(color=(0, 217, 255), thickness=5, circl
 prev_frame_time = 0
 new_frame_time = 0
 
+# Display mode
+calib_flag = False
 
 def drawScatter(ax, coord):
     x = coord[:, 0]
@@ -63,6 +65,22 @@ def setUp3dDisplay(ax, xmin, xmax, ymin, ymax, zmin, zmax):
     ax.set_zlabel('z-axis')
 
 
+def labelInstructions(img):
+    img_h, img_w, _ = img.shape
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 2
+    text_color = (100, 255, 0)
+    text_thickness = 3
+    line_spacing = 20
+    text = "Press 'q' to quit\nPress 'c' to calibrate"
+    (txt_w, txt_h), _ = cv2.getTextSize(text, font, font_scale, text_thickness)
+
+    for i, line in enumerate(text.split('\n')):
+        y = img_h - txt_h - (i * (txt_h + line_spacing) )
+        cv2.putText(img, line, (7, y), font, font_scale, text_color, text_thickness, cv2.LINE_AA)
+
+    return img
+
 with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands=1) as hands:
     while cap.isOpened():
         ret, frame = cap.read()
@@ -82,6 +100,9 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         prev_frame_time = new_frame_time
         cv2.putText(frame, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
 
+        # Label instructions
+        frame = labelInstructions(frame)
+
         # BGR to RGB
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -98,6 +119,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
 
             # label angles
             frame = joints_hand.draw_angles(frame, results, True)
+
 
             # Clear 3d disply
             plt.cla()
@@ -129,6 +151,6 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
 
 
         # For 3d display to refresh
-        plt.pause(0.000001)
+        plt.pause(0.00000001)
 cap.release()
 cv2.destroyAllWindows()

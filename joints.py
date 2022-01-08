@@ -61,17 +61,22 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+        self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
         self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
         self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
         self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, -1, -2, -3, -4]
         self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
 
+        # Calib parameters
+
+
         # Coordinates, connections, and angels between connections
         self.landmarks = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
         self.coord = np.zeros((self.LANDMARK_COUNT, self.COORD_DIM))
         self.conn = np.zeros((self.CONNECTION_COUNT, self.COORD_DIM))
-        self.angle = np.zeros((self.ANGLE_COUNT))
+        self.angle = np.zeros(self.ANGLE_COUNT)
+        self.calib_dat = np.zeros(self.ANGLE_COUNT)
+        self.calib_angle = np.zeros(self.ANGLE_COUNT)
         self.normal = np.zeros((self.NORMAL_COUNT, self.COORD_DIM))
         self.NORMAL_AT = [0, 5, 9, 13, 17]
 
@@ -103,7 +108,7 @@ class joints:
         for idx, idx_conn in enumerate(self.MCP_NORMAL_OPERAND_CONN):
             # Palm normal is in 0, so rest starts at 1
             normal[idx + 1] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
-        print(normal)
+        # print(normal)
         return conn
 
     def _angle_between(self, conn1, conn2):
@@ -116,15 +121,32 @@ class joints:
 
         return deg_angle
 
-    def _calc_angles(self):
+    def _calc_angles(self, calibrate = False):
         for idx, (a, b) in enumerate(zip(self.ANGLES_CONN1, self.ANGLES_CONN2)):
             conn1 = self.normal[abs(a)] if (a < 0) else self.conn[a]
             conn2 = self.normal[abs(b)] if (b < 0) else self.conn[b]
             self.angle[idx] = self._angle_between(conn1, conn2)
+
+        if calibrate is True:
+            self.calib_angle = np.subtract(self.angle, self.calib_dat)
+        return self.calib_angle if (calibrate is True) else self.angle
+
+    def get_coords(self):
+        return self.coord
+
+    def get_angles(self):
         return self.angle
 
-    #NEED TO FIX
-    def _label_angles(self):
+    def get_conns(self):
+        return self.conn
+
+    # Make angles from the hand pose in results as calibration data
+    def calibrate(self):
+        self.calib_dat = np.copy(self._calc_angles())
+        print(self.calib_dat)
+        return
+
+    def _label_angles(self, calibrate = False):
         # Maximum angle
         MAX_ANGLE = 180
 
@@ -139,8 +161,10 @@ class joints:
         rect_color = (255, 255, 255)
         rect_border_color = (0, 0, 0)
 
+        angle_to_label = self.calib_angle if (calibrate is True) else self.angle
+
         # Labelling
-        for flag, loc_idx, angle in zip(self.ANGLES_SHOW_FLAG, self.ANGLES_SHOW_AT, self.angle):
+        for flag, loc_idx, angle in zip(self.ANGLES_SHOW_FLAG, self.ANGLES_SHOW_AT, angle_to_label):
             # Check if angle show flag set to 1 (True)
             if flag == 0:
                 continue
@@ -159,14 +183,12 @@ class joints:
 
         return self.image
 
-    def draw_angles(self, image, results):
+    def draw_angles(self, image, results, calib_flag = False):
         self.image = image
 
         self._calc_connections(results)
-        self._calc_angles()
-        self._label_angles()
+        self._calc_angles(calib_flag)
+        self._label_angles(calib_flag)
 
         return image
 
-    def get_coords(self):
-        return self.coord

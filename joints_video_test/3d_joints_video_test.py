@@ -97,7 +97,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
                 mp_drawing.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS, landmarks_style, connections_style)
 
             # label angles
-            frame = joints_hand.draw_angles(frame, results)
+            frame = joints_hand.draw_angles(frame, results, True)
 
             # Clear 3d disply
             plt.cla()
@@ -121,8 +121,12 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         cv2.imshow('frame', frame)
 
         # Termination
-        if (cv2.waitKey(10) & 0xFF) == ord('q'):
+        pressed_key = cv2.waitKey(10) & 0xFF
+        if pressed_key == ord('q'):
             break
+        elif pressed_key == ord('c'):
+            joints_hand.calibrate()
+
 
         # For 3d display to refresh
         plt.pause(0.000001)

@@ -38,6 +38,7 @@ class NormalLabel(IntEnum):
     MIDDLE_FINGER_MCP_NORMAL = auto()
     RING_FINGER_MCP_NORMAL = auto()
     PINKY_FINGER_MCP_NORMAL = auto()
+    THUMB_MCP_NORMAL = auto()
     THUMB_CMC_NORMAL = auto()
 
 
@@ -46,7 +47,7 @@ class joints:
         # Constants
         self.LANDMARK_COUNT = 21
         self.CONNECTION_COUNT = 21
-        self.NORMAL_COUNT = 6
+        self.NORMAL_COUNT = 7
         self.COORD_DIM = 3
         self.PLACE_HOLDER = 0
 
@@ -65,7 +66,7 @@ class joints:
         self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -6]
         self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
         self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
-        self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2]
+        self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2, 1]
 
         # Calib parameters
 
@@ -114,6 +115,11 @@ class joints:
         normal[NormalLabel.THUMB_CMC_NORMAL] = np.cross(
             conn[ConnLabel.INDEX_FINGER_CB],
             conn[ConnLabel.THUMB_CB] + conn[ConnLabel.THUMB_MCB] + conn[ConnLabel.THUMB_PPB]
+        )
+
+        normal[NormalLabel.THUMB_MCP_NORMAL] = np.cross(
+            conn[ConnLabel.THUMB_CB] + conn[ConnLabel.THUMB_MCB],
+            normal[NormalLabel.THUMB_CMC_NORMAL]
         )
 
         # for idx, vector in enumerate(normal):

@@ -59,12 +59,11 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        # self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
-        self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0]
-        self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0]
-        self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1]
-        self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -6]
-        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
+        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1]
+        # self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, 0]
+        self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0,  2]
+        self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1,  2]
+        self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -7, -6]
         self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
         self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2, 1]
 

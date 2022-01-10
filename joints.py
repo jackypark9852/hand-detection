@@ -58,11 +58,12 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
+        # self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
         self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0]
         self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0]
         self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1]
         self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -6]
+        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
         self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
         self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2]
 
@@ -107,7 +108,7 @@ class joints:
         #Calculate MCP normals
         for idx, idx_conn in enumerate(self.MCP_NORMAL_OPERAND_CONN):
             # Palm normal is in 0, so rest starts at 1
-            normal[idx + 1] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
+            normal[idx + NormalLabel.INDEX_FINGER_MCP_NORMAL] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
 
         # Calculate thumb CMC normal
         normal[NormalLabel.THUMB_CMC_NORMAL] = np.cross(
@@ -122,8 +123,14 @@ class joints:
 
 
     def _angle_between(self, conn1, conn2):
-        unit_conn1 = conn1 / np.linalg.norm(conn1)
-        unit_conn2 = conn2 / np.linalg.norm(conn2)
+        norm_conn1 = np.linalg.norm(conn1)
+        norm_conn2 = np.linalg.norm(conn2)
+        if(norm_conn1 == 0 or norm_conn2 == 0):
+            print('error')
+            return 0
+
+        unit_conn1 = conn1 / norm_conn1
+        unit_conn2 = conn2 / norm_conn2
         dot_product = np.dot(unit_conn1, unit_conn2)
 
         rad_angle = np.arccos(dot_product)

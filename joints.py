@@ -10,7 +10,7 @@ class ConnLabel(IntEnum):
         """Generate consecutive automatic numbers starting from zero."""
         return count
 
-    THUMB_CB = auto()
+    THUMB_CB = auto() # = 0
     THUMB_MCB = auto()
     THUMB_PPB = auto()
     THUMB_DPB = auto()
@@ -33,15 +33,12 @@ class ConnLabel(IntEnum):
 
 
 class NormalLabel(IntEnum):
-    def _generate_next_value_(self, _start, count, _last_values):
-        """Generate consecutive automatic numbers starting from zero."""
-        return count
-
-    PALM_NORMAL = auto()
+    PALM_NORMAL = auto() # = 1
     INDEX_FINGER_MCP_NORMAL = auto()
     MIDDLE_FINGER_MCP_NORMAL = auto()
     RING_FINGER_MCP_NORMAL = auto()
     PINKY_FINGER_MCP_NORMAL = auto()
+    THUMB_CMC_NORMAL = auto()
 
 
 class joints:
@@ -49,7 +46,7 @@ class joints:
         # Constants
         self.LANDMARK_COUNT = 21
         self.CONNECTION_COUNT = 21
-        self.NORMAL_COUNT = 5
+        self.NORMAL_COUNT = 6
         self.COORD_DIM = 3
         self.PLACE_HOLDER = 0
 
@@ -61,11 +58,13 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-        self.ANGLES_SHOW_AT = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
-        self.ANGLES_CONN1 = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 5, 9, 13, 17]
-        self.ANGLES_CONN2 = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, -1, -2, -3, -4]
+        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0 , 1,  1,  1,  1,  1]
+        self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0]
+        self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0]
+        self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1]
+        self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -6]
         self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
+        self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2]
 
         # Calib parameters
 
@@ -77,8 +76,7 @@ class joints:
         self.angle = np.zeros(self.ANGLE_COUNT)
         self.calib_dat = np.zeros(self.ANGLE_COUNT)
         self.calib_angle = np.zeros(self.ANGLE_COUNT)
-        self.normal = np.zeros((self.NORMAL_COUNT, self.COORD_DIM))
-        self.NORMAL_AT = [0, 5, 9, 13, 17]
+        self.normal = np.zeros((self.NORMAL_COUNT + 1, self.COORD_DIM))
 
         # Connections used to cross product with palm normal to calculate normal plane for MCP joints
         self.MCP_NORMAL_OPERAND_CONN = [ConnLabel.INDEX_FINGER_CB,
@@ -103,13 +101,25 @@ class joints:
 
         # Calculate palm normal
         normal[NormalLabel.PALM_NORMAL] = np.cross(
-            conn[ConnLabel.PINKY_FINGER_CB], conn[ConnLabel.INDEX_FINGER_CB])
+            conn[ConnLabel.PINKY_FINGER_CB], conn[ConnLabel.INDEX_FINGER_CB]
+        )
 
+        #Calculate MCP normals
         for idx, idx_conn in enumerate(self.MCP_NORMAL_OPERAND_CONN):
             # Palm normal is in 0, so rest starts at 1
             normal[idx + 1] = np.cross(normal[NormalLabel.PALM_NORMAL], conn[idx_conn])
-        # print(normal)
+
+        # Calculate thumb CMC normal
+        normal[NormalLabel.THUMB_CMC_NORMAL] = np.cross(
+            conn[ConnLabel.INDEX_FINGER_CB],
+            conn[ConnLabel.THUMB_CB] + conn[ConnLabel.THUMB_MCB] + conn[ConnLabel.THUMB_PPB]
+        )
+
+        # for idx, vector in enumerate(normal):
+        #     normal[idx] = vector/np.linalg.norm(vector)/100
+
         return conn
+
 
     def _angle_between(self, conn1, conn2):
         unit_conn1 = conn1 / np.linalg.norm(conn1)

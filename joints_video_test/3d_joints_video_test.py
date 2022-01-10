@@ -149,8 +149,8 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         elif pressed_key == ord('c'):
             joints_hand.calibrate()
 
-
         # For 3d display to refresh
         plt.pause(0.00000001)
 cap.release()
 cv2.destroyAllWindows()
+

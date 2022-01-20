@@ -42,6 +42,36 @@ class NormalLabel(IntEnum):
     THUMB_CMC_NORMAL = auto()
 
 
+class AngleLabel(IntEnum):
+    # Makes enum start at zero
+    def _generate_next_value_(self, _start, count, _last_values):
+        """Generate consecutive automatic numbers starting from zero."""
+        return count
+
+    THUMB_CMC = auto()
+    TUMMB_MCP_Y = auto()
+    THUMB_DIP = auto()
+    INDEX_MCP_Y = auto()
+    INDEX_PIP = auto()
+    INDEX_DIP = auto()
+    MIDDLE_MCP_Y = auto()
+    MIDDLE_PIP = auto()
+    MIDDLE_DIP = auto()
+    RING_MCP_Y = auto()
+    RING_PIP = auto()
+    RING_DIP = auto()
+    PINKY_MCP_Y = auto()
+    PINKY_PIP = auto()
+    PINKY_DIP = auto()
+    THUMB_MCP_X = auto()
+    INDEX_MCP_X = auto()
+    MIDDLE_MCP_X = auto()
+    RING_MCP_X = auto()
+    PINKY_MCP_X = auto()
+
+
+
+
 class joints:
     def __init__(self):
         # Constants
@@ -61,10 +91,15 @@ class joints:
         # [landmark label, conn1, conn2]
         self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1]
         # self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, 0]
-        self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0,  2]
-        self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1,  2]
-        self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -7, -6]
-        self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG)
+        # self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0,  2]
+        # self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1,  2]
+        # self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -7, -6]
+
+        self.ANGLES_SHOW_AT = [0,  2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17,  0]
+        self.ANGLES_CONN1 =   [-1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17, -1]
+        self.ANGLES_CONN2 =   [-7, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -6, -2, -3, -4, -5, -7]
+
+        self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG) #21
         self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2, 1]
 
         # Calib parameters
@@ -213,4 +248,32 @@ class joints:
         self._label_angles(calib_flag)
 
         return image
+
+    def get_angles_string(self):
+        # Output format:
+        # servoThumb_cmc = 0,
+        # servoThumb_mcp_y,
+        # servoThumb_dip,
+        # servoIndex_mcp_y,
+        # servoIndex_pip,
+        # servoIndex_dip,
+        # servoMiddle_mcp_y,
+        # servoMiddle_pip,
+        # servoMiddle_dip,
+        # servoRing_mcp_y,
+        # servoRing_pip,
+        # servoRing_dip,
+        # servoPinky_mcp_y,
+        # servoPinky_pip,
+        # servoPinky_dip,
+        # servoThumb_mcp_x,
+        # servoIndex_mcp_x,
+        # servoMiddle_mcp_x,
+        # servoRing_mcp_x,
+        # servoPinky_mcp_x
+        a = ""
+
+
+
+
 

@@ -139,6 +139,9 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             for idx, normal in enumerate(joints_hand.normal):
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
+        #Print angles string
+        print(joints_hand.get_angles_string())
+
         # Display annotated image
         cv2.imshow('frame', frame)
 

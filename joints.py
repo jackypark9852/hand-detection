@@ -45,9 +45,7 @@ class NormalLabel(IntEnum):
 class AngleLabel(IntEnum):
     # Makes enum start at zero
     def _generate_next_value_(self, _start, count, _last_values):
-        """Generate consecutive automatic numbers starting from zero."""
         return count
-
     THUMB_CMC = auto()
     TUMMB_MCP_Y = auto()
     THUMB_DIP = auto()
@@ -90,11 +88,6 @@ class joints:
         # Store angles to annotate
         # [landmark label, conn1, conn2]
         self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1]
-        # self.ANGLES_SHOW_FLAG = [1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, 0]
-        # self.ANGLES_SHOW_AT =   [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17,  0,  2]
-        # self.ANGLES_CONN1 =     [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  5,  9, 13, 17, -1,  2]
-        # self.ANGLES_CONN2 =     [0, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -2, -3, -4, -5, -7, -6]
-
         self.ANGLES_SHOW_AT = [0,  2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17,  0]
         self.ANGLES_CONN1 =   [-1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17, -1]
         self.ANGLES_CONN2 =   [-7, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -6, -2, -3, -4, -5, -7]
@@ -127,6 +120,7 @@ class joints:
         for idx, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
             self.coord[idx] = [landmark.x, landmark.y, landmark.z]
         return self.coord
+
 
     def _calc_connections(self, results):
         coords = self._calc_coordinates(results)
@@ -178,6 +172,7 @@ class joints:
 
         return deg_angle
 
+
     def _calc_angles(self, calibrate = False):
         for idx, (a, b) in enumerate(zip(self.ANGLES_CONN1, self.ANGLES_CONN2)):
             conn1 = self.normal[abs(a)] if (a < 0) else self.conn[a]
@@ -188,20 +183,25 @@ class joints:
             self.calib_angle = np.subtract(self.angle, self.calib_dat)
         return self.calib_angle if (calibrate is True) else self.angle
 
+
     def get_coords(self):
         return self.coord
+
 
     def get_angles(self):
         return self.angle
 
+
     def get_conns(self):
         return self.conn
+
 
     # Make angles from the hand pose in results as calibration data
     def calibrate(self):
         self.calib_dat = np.copy(self._calc_angles())
-        print(self.calib_dat)
+        # print(self.calib_dat)
         return
+
 
     def _label_angles(self, calibrate = False):
         # Maximum angle
@@ -240,6 +240,7 @@ class joints:
 
         return self.image
 
+
     def draw_angles(self, image, results, calib_flag = False):
         self.image = image
 
@@ -249,31 +250,8 @@ class joints:
 
         return image
 
-    def get_angles_string(self):
-        # Output format:
-        # servoThumb_cmc = 0,
-        # servoThumb_mcp_y,
-        # servoThumb_dip,
-        # servoIndex_mcp_y,
-        # servoIndex_pip,
-        # servoIndex_dip,
-        # servoMiddle_mcp_y,
-        # servoMiddle_pip,
-        # servoMiddle_dip,
-        # servoRing_mcp_y,
-        # servoRing_pip,
-        # servoRing_dip,
-        # servoPinky_mcp_y,
-        # servoPinky_pip,
-        # servoPinky_dip,
-        # servoThumb_mcp_x,
-        # servoIndex_mcp_x,
-        # servoMiddle_mcp_x,
-        # servoRing_mcp_x,
-        # servoPinky_mcp_x
-        a = ""
-
-
+    def get_angles_string(self) :
+        return np.array2string(self.calib_angle.astype(int), separator=' ',suppress_small=False)[1:-1]
 
 
 

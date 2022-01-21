@@ -4,6 +4,7 @@ import mediapipe as mp
 import numpy as np
 import joints
 import time
+import serial
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -43,6 +44,9 @@ new_frame_time = 0
 
 # Display mode
 calib_flag = False
+
+# Initialize serial
+
 
 def drawScatter(ax, coord):
     x = coord[:, 0]

@@ -46,7 +46,7 @@ class AngleLabel(IntEnum):
     # Makes enum start at zero
     def _generate_next_value_(self, _start, count, _last_values):
         return count
-    THUMB_CMC = auto()
+    THUMB_CMC = auto() # = 0
     TUMMB_MCP_Y = auto()
     THUMB_DIP = auto()
     INDEX_MCP_Y = auto()
@@ -68,8 +68,6 @@ class AngleLabel(IntEnum):
     PINKY_MCP_X = auto()
 
 
-
-
 class joints:
     def __init__(self):
         # Constants
@@ -78,6 +76,7 @@ class joints:
         self.NORMAL_COUNT = 7
         self.COORD_DIM = 3
         self.PLACE_HOLDER = 0
+        self.ANGLE_COUNT = 20
 
         # Store connection instructions
         # 1) Basic joint angles
@@ -87,12 +86,11 @@ class joints:
 
         # Store angles to annotate
         # [landmark label, conn1, conn2]
-        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1]
-        self.ANGLES_SHOW_AT = [0,  2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17,  0]
-        self.ANGLES_CONN1 =   [-1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17, -1]
-        self.ANGLES_CONN2 =   [-7, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -6, -2, -3, -4, -5, -7]
+        self.ANGLES_SHOW_FLAG = [0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1, 1  ]
+        self.ANGLES_SHOW_AT =   [0,  2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17]
+        self.ANGLES_CONN1 =     [-1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19,  2,  5,  9, 13, 17]
+        self.ANGLES_CONN2 =     [-7, 1, 2, 4, 5, 6, 8,  9, 10, 12, 13, 14, 16, 17, 18, -6, -2, -3, -4, -5]
 
-        self.ANGLE_COUNT = len(self.ANGLES_SHOW_FLAG) #21
         self.NORMAL_AT = [0, 0, 5, 9, 13, 17, 2, 1]
 
         # Calib parameters
@@ -180,7 +178,13 @@ class joints:
             self.angle[idx] = self._angle_between(conn1, conn2)
 
         if calibrate is True:
+            # Angles are 0deg at neutral pos by defualt
             self.calib_angle = np.subtract(self.angle, self.calib_dat)
+
+            # MCP_X angles are 90deg at neutral pos
+            for i in range(AngleLabel.THUMB_MCP_X, AngleLabel.PINKY_MCP_X + 1):
+                self.calib_angle[i] += 90
+
         return self.calib_angle if (calibrate is True) else self.angle
 
 
@@ -252,6 +256,6 @@ class joints:
 
     def get_angles_string(self) :
         # output_list = self.calib_angle.astype(int)
-        output_list =[max(0, i) for i in self.calib_angle.astype(int)]
+        output_list = [max(0, i) for i in self.calib_angle.astype(int)]
         output_string = "".join(list(map(chr, output_list)))
         return output_string

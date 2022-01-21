@@ -46,6 +46,10 @@ new_frame_time = 0
 calib_flag = False
 
 # Initialize serial
+# baud = 115200
+# ser = serial.Serial('COM4', baud)
+# ser.timeout = 1
+# time.sleep(2)
 
 
 def drawScatter(ax, coord):
@@ -57,7 +61,7 @@ def drawScatter(ax, coord):
 
 def drawVector(ax, start, end, width, color):
     vector = np.array([start, end]).T
-    ax.plot(vector[0], 1 - vector[1], vector[2], linewidth=width, color=color, scalex= False, scaley=False)
+    ax.plot(vector[0], 1 - vector[1], vector[2], linewidth=width, color=color, scalex=False, scaley=False)
 
 
 def setUp3dDisplay(ax, xmin, xmax, ymin, ymax, zmin, zmax):
@@ -80,10 +84,11 @@ def labelInstructions(img):
     (txt_w, txt_h), _ = cv2.getTextSize(text, font, font_scale, text_thickness)
 
     for i, line in enumerate(text.split('\n')):
-        y = img_h - txt_h - (i * (txt_h + line_spacing) )
+        y = img_h - txt_h - (i * (txt_h + line_spacing))
         cv2.putText(img, line, (7, y), font, font_scale, text_color, text_thickness, cv2.LINE_AA)
 
     return img
+
 
 with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands=1) as hands:
     while cap.isOpened():
@@ -124,7 +129,6 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             # label angles
             frame = joints_hand.draw_angles(frame, results, True)
 
-
             # Clear 3d disply
             plt.cla()
 
@@ -143,11 +147,10 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             for idx, normal in enumerate(joints_hand.normal):
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
-        #Print angles string
+        # Convert angle results into string and send to arduino
         output_string = joints_hand.get_angles_string()
-        for i in output_string:
-            print(ord(i), end=' ')
-        print('\n')
+        # for i in output_string: print( ord(i), end=' ')
+        # serial.write(output_string.encode())
 
         # Display annotated image
         cv2.imshow('frame', frame)
@@ -163,4 +166,3 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         plt.pause(0.00000001)
 cap.release()
 cv2.destroyAllWindows()
-

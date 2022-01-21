@@ -2,6 +2,7 @@
 #define numOfAngs 20 //with mcp & cmc joints
 
 int AngsRec[numOfAngs];
+String InBytes;
 
 Servo servo[numOfAngs];
 
@@ -57,16 +58,16 @@ void setup() {
 }
 
 void receiveAngle() {
-  while (Serial.available()) {
-    for (int j = 0; j < numOfAngs; j++) {
-      AngsRec[j] = Serial.read() - '0';
-    }
+  if (Serial.available() > 0) {
+    InBytes = Serial.readStringUntil('\n');
+    for (int i = 0; i< numOfAngs; i++)
+      AngsRec[i] = InBytes[i] - '0';
   }
 }
 
 void loop() {
     receiveAngle();
-    for (int k = 0; k < numOfAngs; k++) {
-      servo[k].write(AngsRec[k]);
+    for (int i = 0; i < numOfAngs; i++) {
+      servo[i].write(AngsRec[i]);
     }
 }

@@ -59,7 +59,7 @@ void setup() {
 
 void receiveAngle() {
   if (Serial.available() > 0) {
-    InBytes = Serial.readStringUntil('\n');
+    InBytes = Serial.readStringUntil(255);
     for (int i = 0; i< numOfAngs; i++)
       AngsRec[i] = InBytes[i] - '0';
   }

@@ -251,7 +251,7 @@ class joints:
         return image
 
     def get_angles_string(self) :
-        return np.array2string(self.calib_angle.astype(int), separator=' ',suppress_small=False)[1:-1]
-
-
-
+        # output_list = self.calib_angle.astype(int)
+        output_list =[max(0, i) for i in self.calib_angle.astype(int)]
+        output_string = "".join(list(map(chr, output_list)))
+        return output_string

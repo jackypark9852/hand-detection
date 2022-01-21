@@ -149,7 +149,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
 
         # Convert angle results into string and send to arduino
         output_string = joints_hand.get_angles_string()
-        # for i in output_string: print( ord(i), end=' ')
+        # fori  in output_string: print(ord(i), end=' ')
         # serial.write(output_string.encode())
 
         # Display annotated image

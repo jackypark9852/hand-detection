@@ -33,7 +33,8 @@ enum {
 void setup() {
   Serial.begin(115200);
   for (int i = 0; i < 15; i++) {
-    servo[i].write(0);
+    if (i < 15) servo[i].write(0);
+    else servo[i].write(90);
   }
   servo[0].attach(1);
   servo[1].attach(2);

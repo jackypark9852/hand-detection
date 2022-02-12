@@ -47,7 +47,7 @@ class AngleLabel(IntEnum):
     def _generate_next_value_(self, _start, count, _last_values):
         return count
     THUMB_CMC = auto() # = 0
-    TUMMB_MCP_Y = auto()
+    THUMB_MCP_Y = auto()
     THUMB_DIP = auto()
     INDEX_MCP_Y = auto()
     INDEX_PIP = auto()

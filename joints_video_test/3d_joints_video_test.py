@@ -139,14 +139,6 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             for idx, normal in enumerate(joints_hand.normal):
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
-            # Send results to serial
-            ang_serial.send_angles(joints_hand.get_angles())
-
-        # Convert angle results into string and send to arduino
-        output_string = joints_hand.get_angles_string()
-        # fori  in output_string: print(ord(i), end=' ')
-        # serial.write(output_string.encode())
-
         # Display annotated image
         cv2.imshow('frame', frame)
 

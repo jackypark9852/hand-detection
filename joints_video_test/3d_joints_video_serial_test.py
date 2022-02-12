@@ -25,7 +25,7 @@ else:
     print('FAILED TO OPEN CAMERA')
     exit(1)
 
-# Joints initialization
+# Joints Initialization
 joints_hand = joints.joints()
 
 # 3d figure initialization
@@ -46,7 +46,7 @@ new_frame_time = 0
 calib_flag = False
 
 # Initialize serial communication
-angle_serial = ang_serial.Angle#(port='COM3', baudrate=115200)
+angle_serial = ang_serial.AngleSerial(port='COM3', baudrate=115200)
 
 def drawScatter(ax, coord):
     x = coord[:, 0]

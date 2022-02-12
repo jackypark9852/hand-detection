@@ -253,9 +253,3 @@ class joints:
         self._label_angles(calib_flag)
 
         return image
-
-    def get_angles_string(self) :
-        output_list = [max(0, i) for i in self.calib_angle.astype(int)]
-        angle_string = "".join(list(map(chr, output_list)))
-        output_string = angle_string + chr(255)
-        return output_string

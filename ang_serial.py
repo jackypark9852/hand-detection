@@ -23,8 +23,5 @@ class AngleSerial:
         angles_string = self._angles_to_string(angles)
         return self.arduinoData.write(angles_string.encode())
 
-
-
-
 angSerial = AngleSerial
 print(angSerial.angles_to_string(test))

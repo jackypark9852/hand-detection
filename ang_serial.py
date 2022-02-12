@@ -2,9 +2,7 @@
 import joints
 import numpy as np
 import serial
-test = np.random.rand(20)
-test *= 10
-print(test)
+
 class AngleSerial:
     def __init__(self, port = 'com3', baudrate = 115200):
         self.port = port
@@ -22,6 +20,3 @@ class AngleSerial:
     def send_angles(self, angles):
         angles_string = self._angles_to_string(angles)
         return self.arduinoData.write(angles_string.encode())
-
-angSerial = AngleSerial
-print(angSerial.angles_to_string(test))

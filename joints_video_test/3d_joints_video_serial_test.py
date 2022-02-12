@@ -4,6 +4,8 @@ import mediapipe as mp
 import numpy as np
 import joints
 import time
+import serial
+import ang_serial
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -43,6 +45,11 @@ new_frame_time = 0
 
 # Display mode
 calib_flag = False
+
+# Initialize serial communication
+baudrate = 115200
+port = 'COM3'
+angle_serial = ang_serial.AngleSerial(port, baudrate)
 
 def drawScatter(ax, coord):
     x = coord[:, 0]
@@ -139,7 +146,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
             for idx, normal in enumerate(joints_hand.normal):
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
-            # Send results to serial
+            # Send serial data
             ang_serial.send_angles(joints_hand.get_angles())
 
         # Convert angle results into string and send to arduino

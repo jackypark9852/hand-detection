@@ -46,13 +46,13 @@ new_frame_time = 0
 calib_flag = False
 
 # Initialize serial communication
-angle_serial = ang_serial.AngleSerial(port='COM3', baudrate=115200)
+angle_serial = ang_serial.AngleSerial(port='/dev/cu.usbmodem146201', baudrate=9600)
 
 def drawScatter(ax, coord):
     x = coord[:, 0]
     y = coord[:, 1]
     z = coord[:, 2]
-    ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figure
+    ax.scatter(x, 1 - y, z)  # plot the point (2,3,4) on the figurQe
 
 
 def drawVector(ax, start, end, width, color):
@@ -139,6 +139,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
 
             # Send serial data
             print(angle_serial.send_angles(joints_hand.get_angles()))
+            time.sleep(0.02)
 
         # Display annotated image
         cv2.imshow('frame', frame)

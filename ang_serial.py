@@ -7,7 +7,7 @@ class AngleSerial:
     def __init__(self, port = 'com3', baudrate = 115200):
         self.port = port
         self.baudrate = baudrate
-        # self.arduinoData = serial.Serial(port, baudrate, writeTimeout=3.0)
+        self.arduinoData = serial.Serial(port, baudrate, writeTimeout=3.0)
 
     def _angles_to_string(self, angles):
         ret = '<'
@@ -21,5 +21,5 @@ class AngleSerial:
 
     def send_angles(self, angles):
         angles_string = self._angles_to_string(angles)
-        # self.arduinoData.write(angles_string.encode())
+        self.arduinoData.write(angles_string.encode())
         return angles_string

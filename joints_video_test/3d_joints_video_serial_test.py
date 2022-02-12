@@ -95,7 +95,8 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         scale_percent = 200  # percent of original size
         width = int(frame.shape[1] * scale_percent / 100)
         height = int(frame.shape[0] * scale_percent / 100)
-        frame = cv2.resize(frame, dim=(width, height), interpolation=cv2.INTER_AREA)
+        dim = (width, height)
+        frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
         # Fps tracker start
         new_frame_time = time.time()
@@ -137,7 +138,7 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
             # Send serial data
-            ang_serial.send_angles(joints_hand.get_angles())
+            print(angle_serial.send_angles(joints_hand.get_angles()))
 
         # Display annotated image
         cv2.imshow('frame', frame)

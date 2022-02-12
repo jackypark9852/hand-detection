@@ -4,7 +4,6 @@ import mediapipe as mp
 import numpy as np
 import joints
 import time
-import serial
 import ang_serial
 
 mp_drawing = mp.solutions.drawing_utils
@@ -47,9 +46,7 @@ new_frame_time = 0
 calib_flag = False
 
 # Initialize serial communication
-baudrate = 115200
-port = 'COM3'
-angle_serial = ang_serial.AngleSerial(port, baudrate)
+angle_serial = ang_serial.Angle#(port='COM3', baudrate=115200)
 
 def drawScatter(ax, coord):
     x = coord[:, 0]
@@ -98,13 +95,11 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         scale_percent = 200  # percent of original size
         width = int(frame.shape[1] * scale_percent / 100)
         height = int(frame.shape[0] * scale_percent / 100)
-        dim = (width, height)
-        frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+        frame = cv2.resize(frame, dim=(width, height), interpolation=cv2.INTER_AREA)
 
         # Fps tracker start
         new_frame_time = time.time()
-        fps = 1 / (new_frame_time - prev_frame_time)
-        fps = str(int(fps))
+        fps = str(int(1 / (new_frame_time - prev_frame_time)))
         prev_frame_time = new_frame_time
         cv2.putText(frame, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
 
@@ -119,43 +114,36 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
 
         # Detection is successful
         if results.multi_hand_landmarks:
-            # Label landmarks and connections
-            landmarks_style = mp_drawing_styles.get_default_hand_landmarks_style()
+            #Label detection results on live video feed
+            landmarks_style = mp_drawing_styles.get_default_hand_landmarks_style() # Labeling Style
             connections_style = mp_drawing_styles.get_default_hand_connections_style()
-            for hand in results.multi_hand_landmarks:
+
+            for hand in results.multi_hand_landmarks: # Label landmarks
                 mp_drawing.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS, landmarks_style, connections_style)
 
-            # label angles
-            frame = joints_hand.draw_angles(frame, results, True)
+            frame = joints_hand.draw_angles(frame, results, True) # label angles
 
-            # Clear 3d disply
-            plt.cla()
 
-            # 3d display parameters
+            # Display detection result in 3D
+            plt.cla() # Clear 3D screen
             setUp3dDisplay(ax, 0, 1, 0, 1, -0.25, 0.25)
+            drawScatter(ax, joints_hand.coord) # Draw joint nodes
 
-            # Draw landmarks
-            drawScatter(ax, joints_hand.coord)
-
-            # Draw connections
-            for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD):
+            for a, b in zip(joints_hand.CONNECTIONS_PARENT, joints_hand.CONNECTIONS_CHILD): # Draw connections between joints
                 drawVector(ax, joints_hand.coord[a], joints_hand.coord[b], 3, 'black')
 
-            # Draw normal vectors
-            norm_at = joints_hand.NORMAL_AT
+            norm_at = joints_hand.NORMAL_AT # Draw normal vectors
             for idx, normal in enumerate(joints_hand.normal):
                 drawVector(ax, joints_hand.coord[norm_at[idx]], joints_hand.coord[norm_at[idx]] + normal * 7, 3, 'red')
 
             # Send serial data
             ang_serial.send_angles(joints_hand.get_angles())
 
-        # Convert angle results into string and send to arduino
-        output_string = joints_hand.get_angles_string()
-        # fori  in output_string: print(ord(i), end=' ')
-        # serial.write(output_string.encode())
-
         # Display annotated image
         cv2.imshow('frame', frame)
+
+        # For 3d display to refresh
+        plt.pause(0.00000001)
 
         # Termination
         pressed_key = cv2.waitKey(10) & 0xFF
@@ -164,7 +152,5 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, m
         elif pressed_key == ord('c'):
             joints_hand.calibrate()
 
-        # For 3d display to refresh
-        plt.pause(0.00000001)
 cap.release()
 cv2.destroyAllWindows()
